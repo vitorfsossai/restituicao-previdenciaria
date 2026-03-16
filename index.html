@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restituição de INSS Pago Acima do Teto</title>
+  <style>
+    :root {
+      --navy: #031D38;
+      --navy-2: #0a2d55;
+      --gold: #C9A14A;
+      --gold-2: #E0BC67;
+      --bg: #f5f7fb;
+      --text: #17212b;
+      --muted: #5f6b78;
+      --white: #ffffff;
+      --success: #0f8f54;
+      --danger: #b42318;
+      --shadow: 0 16px 40px rgba(3, 29, 56, 0.12);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      background: var(--navy);
+      color: var(--white);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 8px 20px rgba(3, 29, 56, 0.18);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+    }
+
+    .brand {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: .4px;
+    }
+
+    .brand span { color: var(--gold-2); }
+
+    .nav a {
+      color: rgba(255,255,255,.92);
+      text-decoration: none;
+      margin-left: 18px;
+      font-size: .95rem;
+    }
+
+    .nav a:hover { color: var(--gold-2); }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(3,29,56,.97), rgba(10,45,85,.92));
+      color: var(--white);
+      padding: 72px 0 56px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -120px -120px auto;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(201,161,74,.22), transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 999px;
+      color: var(--gold-2);
+      font-size: .9rem;
+      margin-bottom: 14px;
+      background: rgba(255,255,255,.06);
+    }
+
+    h1, h2, h3 { line-height: 1.15; margin: 0 0 14px; }
+    h1 { font-size: clamp(2rem, 4vw, 3.5rem); }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.35rem); color: var(--navy); }
+    h3 { font-size: 1.2rem; color: var(--navy); }
+
+    .hero p {
+      color: rgba(255,255,255,.92);
+      font-size: 1.08rem;
+      margin-bottom: 24px;
+      max-width: 62ch;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 0;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--navy);
+      box-shadow: 0 12px 24px rgba(201,161,74,.25);
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,.08);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,.18);
+    }
+    .btn-dark {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .hero-card,
+    .card,
+    .form-card,
+    .tutorial-card,
+    .faq-item {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .stat {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px 0;
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    .stat:last-child { border-bottom: 0; }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(201,161,74,.18);
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    section { padding: 64px 0; }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 28px;
+    }
+
+    .section-head p { color: var(--muted); margin: 0; }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+    }
+
+    .card {
+      padding: 22px;
+      border: 1px solid #edf1f6;
+    }
+
+    .card p, .tutorial-card p, .faq-item p, .faq-item li, .form-note, .small {
+      color: var(--muted);
+    }
+
+    .highlight {
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .strip {
+      background: linear-gradient(90deg, var(--navy), var(--navy-2));
+      color: var(--white);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .strip p { margin: 8px 0 0; color: rgba(255,255,255,.92); }
+
+    .list {
+      padding-left: 18px;
+      margin: 10px 0 0;
+    }
+
+    .list li { margin-bottom: 8px; }
+
+    .tutorial-card {
+      padding: 24px;
+      height: 100%;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    .step:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .step-number {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    .intake {
+      background: linear-gradient(180deg, #f9fbff, #eef4fb);
+    }
+
+    .form-card {
+      padding: 24px;
+      border: 1px solid #e7edf5;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+
+    label { font-weight: 700; color: var(--navy); }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 12px;
+      border: 1px solid #d6dee8;
+      background: var(--white);
+      padding: 12px 14px;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+    }
+
+    textarea { min-height: 112px; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(201,161,74,.14);
+    }
+
+    .radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      flex: 1;
+      min-width: 120px;
+      position: relative;
+    }
+
+    .chip input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .chip span {
+      display: block;
+      text-align: center;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #d6dee8;
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .chip input:checked + span {
+      border-color: var(--gold);
+      background: rgba(201,161,74,.12);
+      color: var(--navy);
+    }
+
+    .result-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #e4ebf2;
+      display: none;
+    }
+
+    .result-box.show { display: block; }
+    .result-box h3 { margin-bottom: 8px; }
+    .result-box.success { border-left: 6px solid var(--success); }
+    .result-box.warning { border-left: 6px solid var(--gold); }
+    .result-box.danger { border-left: 6px solid var(--danger); }
+
+    .faq-wrap {
+      display: grid;
+      gap: 14px;
+    }
+
+    .faq-item {
+      padding: 18px 20px;
+      border: 1px solid #edf1f6;
+    }
+
+    .footer {
+      background: var(--navy);
+      color: rgba(255,255,255,.9);
+      padding: 28px 0;
+      margin-top: 28px;
+    }
+
+    .footer strong { color: #fff; }
+    .tiny { font-size: .9rem; }
+    .notice {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(201,161,74,.12);
+      border: 1px solid rgba(201,161,74,.24);
+      color: var(--navy);
+      margin-top: 16px;
+    }
+
+    .anchor-offset { scroll-margin-top: 90px; }
+
+    @media (max-width: 920px) {
+      .hero-grid,
+      .grid-2,
+      .grid-3,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav { display: none; }
+      section { padding: 52px 0; }
+      .hero { padding-top: 52px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">NUNES &amp; <span>SOSSAI</span> | Restituição de INSS</div>
+      <nav class="nav">
+        <a href="#direito">Entenda</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#cnis">Como baixar o CNIS</a>
+        <a href="#analise">Análise</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="eyebrow">Análise de contribuições previdenciárias em vínculos concomitantes</div>
+        <h1>Trabalhou em <span class="highlight">dois empregos</span> ao mesmo tempo? Você pode ter direito à <span class="highlight">restituição do INSS</span>.</h1>
+        <p>
+          Em muitos casos, trabalhadores que tiveram dois ou mais vínculos simultâneos acabaram contribuindo acima do teto previdenciário. Esse excesso pode ser devolvido, desde que a situação seja analisada corretamente com base no CNIS e nos extratos previdenciários.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#analise">Quero verificar meu caso</a>
+          <a class="btn btn-secondary" href="#cnis">Aprender a baixar o CNIS</a>
+        </div>
+      </div>
+      <aside class="hero-card">
+        <h3>O que será analisado</h3>
+        <div class="stat">
+          <div class="icon">1</div>
+          <div>
+            <strong>Vínculos concomitantes</strong>
+            <div class="small">Se houve dois ou mais empregos no mesmo período, especialmente nos últimos 5 anos.</div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="icon">2</div>
+          <div>
+            <strong>Contribuições acima do teto</strong>
+            <div class="small">Se a soma das contribuições ultrapassou o limite legal do INSS.</div>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="icon">3</div>
+          <div>
+            <strong>Possibilidade de restituição</strong>
+            <div class="small">Se existe viabilidade administrativa ou judicial para recuperação dos valores.</div>
+          </div>
+        </div>
+        <div class="notice tiny">
+          A análise depende dos documentos previdenciários. O principal documento inicial é o <strong>CNIS</strong>.
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="direito" class="anchor-offset">
+    <div class="container">
+      <div class="section-head">
+        <h2>Quem pode ter direito</h2>
+        <p>
+          A situação é comum entre médicos, enfermeiros, plantonistas, professores, profissionais da saúde, servidores e trabalhadores em geral que mantiveram mais de um vínculo de trabalho ao mesmo tempo.
+        </p>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <h3>Contribuição em dois vínculos</h3>
+          <p>Quando a pessoa tem dois empregos no mesmo período, pode haver desconto de INSS em ambos os vínculos no mesmo mês.</p>
+        </article>
+        <article class="card">
+          <h3>Limite máximo de recolhimento</h3>
+          <p>A legislação previdenciária estabelece um teto de contribuição. O que ultrapassa esse limite pode caracterizar pagamento indevido.</p>
+        </article>
+        <article class="card">
+          <h3>Valores passíveis de restituição</h3>
+          <p>Identificado o excesso, é possível estudar a restituição administrativa ou judicial dos valores pagos a maior.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-funciona" class="anchor-offset">
+    <div class="container">
+      <div class="strip">
+        <h2 style="color:#fff; margin-bottom: 0;">Como funciona a análise</h2>
+        <p>O procedimento é simples: primeiro se verifica a existência de vínculos concomitantes, depois se analisa o CNIS e os extratos previdenciários, e, havendo viabilidade, o caso segue para as medidas cabíveis.</p>
+      </div>
+      <div class="grid-2" style="margin-top: 22px;">
+        <article class="card">
+          <h3>Etapas</h3>
+          <ul class="list">
+            <li>Confirmação de que houve dois ou mais vínculos simultâneos.</li>
+            <li>Envio do CNIS para análise técnica inicial.</li>
+            <li>Conferência de contribuições, remunerações e competências.</li>
+            <li>Apuração da possível restituição.</li>
+            <li>Definição da medida administrativa ou judicial adequada.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Observações importantes</h3>
+          <ul class="list">
+            <li>Nem toda situação gera restituição.</li>
+            <li>A análise depende dos dados previdenciários atualizados.</li>
+            <li>Em alguns casos pode ser necessário solicitar documentos complementares.</li>
+            <li>O CNIS é o ponto de partida para saber se existe viabilidade.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="cnis" class="anchor-offset">
+    <div class="container">
+      <div class="section-head">
+        <h2>Como baixar o CNIS</h2>
+        <p>O documento pode ser obtido pelo site do Meu INSS ou pelo aplicativo no celular.</p>
+      </div>
+      <div class="grid-2">
+        <article class="tutorial-card">
+          <h3>Pelo site ou aplicativo</h3>
+          <div class="step">
+            <div class="step-number">1</div>
+            <div>
+              <strong>Acesse o Meu INSS</strong>
+              <p>Entre no site <strong>meu.inss.gov.br</strong> ou abra o aplicativo Meu INSS e faça login com sua conta gov.br.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div>
+              <strong>Pesquise por CNIS</strong>
+              <p>Na barra de pesquisa, digite <strong>CNIS</strong> e selecione <strong>Extrato de Contribuições (CNIS)</strong>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div>
+              <strong>Role até o fim e baixe</strong>
+              <p>Na tela dos vínculos, vá até o final e clique em <strong>Baixar documento</strong>.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div>
+              <strong>Escolha a opção correta</strong>
+              <p>Selecione <strong>Vínculos, contribuições e remunerações</strong>, que é a opção do meio.</p>
+            </div>
+          </div>
+        </article>
+        <article class="tutorial-card">
+          <h3>Envio para análise</h3>
+          <p>Depois de baixar o PDF do CNIS, envie o documento para análise. Esse extrato mostra os vínculos, as remunerações e as contribuições usadas na conferência técnica do caso.</p>
+          <div class="notice">
+            Se a pessoa não souber como emitir o documento, pode receber um passo a passo ou apoio para obtenção do CNIS.
+          </div>
+          <div class="cta-row" style="margin-top:20px;">
+            <a class="btn btn-primary" href="#analise">Já tenho o CNIS</a>
+            <a class="btn btn-dark" href="https://meu.inss.gov.br" target="_blank" rel="noopener noreferrer">Abrir Meu INSS</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="analise" class="intake anchor-offset">
+    <div class="container">
+      <div class="section-head">
+        <h2>Solicite sua análise inicial</h2>
+        <p>
+          Preencha as informações abaixo. Ao final, o site mostrará uma triagem inicial e preparará uma mensagem para envio por WhatsApp com os dados essenciais do caso.
+        </p>
+      </div>
+      <div class="form-card">
+        <form id="leadForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="nome">Nome completo</label>
+              <input id="nome" name="nome" type="text" placeholder="Digite seu nome" required />
+            </div>
+            <div class="field">
+              <label for="whatsapp">WhatsApp</label>
+              <input id="whatsapp" name="whatsapp" type="text" placeholder="(00) 00000-0000" required />
+            </div>
+
+            <div class="field full">
+              <label>Você trabalhou em dois ou mais vínculos ao mesmo tempo nos últimos 5 anos?</label>
+              <div class="radio-row">
+                <label class="chip"><input type="radio" name="concomitante" value="Sim" required /><span>Sim</span></label>
+                <label class="chip"><input type="radio" name="concomitante" value="Não" required /><span>Não</span></label>
+                <label class="chip"><input type="radio" name="concomitante" value="Não sei" required /><span>Não sei</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="vinculos">Quantidade aproximada de vínculos simultâneos</label>
+              <select id="vinculos" name="vinculos">
+                <option value="">Selecione</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4 ou mais</option>
+                <option>Não sei informar</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="periodo">Período aproximado</label>
+              <input id="periodo" name="periodo" type="text" placeholder="Ex.: 2022 a 2024" />
+            </div>
+
+            <div class="field full">
+              <label>Você já possui o CNIS em PDF?</label>
+              <div class="radio-row">
+                <label class="chip"><input type="radio" name="temCnis" value="Sim" required /><span>Sim</span></label>
+                <label class="chip"><input type="radio" name="temCnis" value="Não" required /><span>Não</span></label>
+                <label class="chip"><input type="radio" name="temCnis" value="Não sei" required /><span>Não sei</span></label>
+              </div>
+            </div>
+
+            <div class="field full">
+              <label for="observacoes">Observações</label>
+              <textarea id="observacoes" name="observacoes" placeholder="Ex.: trabalhei em hospital e município no mesmo período, ou outras informações relevantes."></textarea>
+            </div>
+          </div>
+
+          <p class="form-note tiny">Este formulário realiza apenas uma triagem inicial e não substitui a análise jurídica individualizada.</p>
+
+          <div class="cta-row">
+            <button type="submit" class="btn btn-primary">Analisar respostas</button>
+            <button type="button" class="btn btn-dark" id="clearBtn">Limpar</button>
+          </div>
+        </form>
+
+        <div id="resultBox" class="result-box" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <h2>Perguntas frequentes</h2>
+        <p>Dúvidas comuns sobre a restituição e a documentação necessária.</p>
+      </div>
+      <div class="faq-wrap">
+        <article class="faq-item">
+          <h3>Ter dois empregos ao mesmo tempo gera devolução automaticamente?</h3>
+          <p>Não. É necessário verificar, mês a mês, se as contribuições superaram o teto previdenciário e se existe efetiva viabilidade de restituição.</p>
+        </article>
+        <article class="faq-item">
+          <h3>Qual documento preciso enviar primeiro?</h3>
+          <p>O documento inicial mais importante é o CNIS, preferencialmente na modalidade <strong>Vínculos, contribuições e remunerações</strong>.</p>
+        </article>
+        <article class="faq-item">
+          <h3>Não sei baixar o CNIS. Posso receber orientação?</h3>
+          <p>Sim. O passo a passo pode ser enviado para facilitar a obtenção do documento pelo site ou aplicativo Meu INSS.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container tiny">
+      <strong>NUNES &amp; SOSSAI</strong><br />
+      Página informativa para triagem inicial de casos envolvendo restituição de contribuições previdenciárias pagas acima do teto.<br />
+      Antes de publicar, substitua o número de WhatsApp no código pelo número oficial do atendimento.
+    </div>
+  </footer>
+
+  <script>
+    const WHATSAPP_NUMBER = '5569981593723'; // Substitua pelo número oficial com DDI e DDD. Ex.: 5569999999999
+
+    const form = document.getElementById('leadForm');
+    const resultBox = document.getElementById('resultBox');
+    const clearBtn = document.getElementById('clearBtn');
+
+    function getValue(name) {
+      const field = form.elements[name];
+      if (!field) return '';
+      if (field.type === 'radio') return field.checked ? field.value : '';
+      return field.value.trim();
+    }
+
+    function getRadioValue(name) {
+      const checked = form.querySelector(`input[name="${name}"]:checked`);
+      return checked ? checked.value : '';
+    }
+
+    function buildWhatsappMessage(data) {
+      const linhas = [
+        'Olá. Vim pelo site sobre restituição de INSS.',
+        `Nome: ${data.nome}`,
+        `WhatsApp: ${data.whatsapp}`,
+        `Teve vínculos concomitantes nos últimos 5 anos: ${data.concomitante}`,
+        `Quantidade aproximada de vínculos: ${data.vinculos || 'Não informado'}`,
+        `Período aproximado: ${data.periodo || 'Não informado'}`,
+        `Já possui CNIS em PDF: ${data.temCnis}`,
+        `Observações: ${data.observacoes || 'Sem observações'}`
+      ];
+      return encodeURIComponent(linhas.join('\n'));
+    }
+
+    function renderResult(type, title, message, data) {
+      resultBox.className = `result-box show ${type}`;
+      const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsappMessage(data)}`;
+      let extraActions = `
+        <div class="cta-row" style="margin-top:14px;">
+          <a class="btn btn-primary" href="${whatsappLink}" target="_blank" rel="noopener noreferrer">Enviar triagem por WhatsApp</a>
+          <a class="btn btn-dark" href="#cnis">Ver tutorial do CNIS</a>
+        </div>`;
+
+      resultBox.innerHTML = `
+        <h3>${title}</h3>
+        <p>${message}</p>
+        ${extraActions}
+      `;
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const data = {
+        nome: getValue('nome'),
+        whatsapp: getValue('whatsapp'),
+        concomitante: getRadioValue('concomitante'),
+        vinculos: getValue('vinculos'),
+        periodo: getValue('periodo'),
+        temCnis: getRadioValue('temCnis'),
+        observacoes: getValue('observacoes')
+      };
+
+      if (data.concomitante === 'Sim' && data.temCnis === 'Sim') {
+        renderResult(
+          'success',
+          'Triagem inicial favorável à análise',
+          'Há indicação de que o caso merece conferência técnica. O próximo passo é encaminhar o CNIS e os dados informados para análise detalhada.',
+          data
+        );
+        return;
+      }
+
+      if (data.concomitante === 'Sim' && data.temCnis !== 'Sim') {
+        renderResult(
+          'warning',
+          'Seu caso pode ser analisável, mas falta o CNIS',
+          'Como houve indicação de vínculos simultâneos, o próximo passo é obter o CNIS em PDF para análise. Use o tutorial desta página e depois encaminhe o documento.',
+          data
+        );
+        return;
+      }
+
+      if (data.concomitante === 'Não sei') {
+        renderResult(
+          'warning',
+          'É preciso conferir os vínculos no CNIS',
+          'Mesmo sem certeza sobre a simultaneidade dos vínculos, o CNIS permitirá verificar se houve períodos concomitantes e se existe possibilidade de restituição.',
+          data
+        );
+        return;
+      }
+
+      renderResult(
+        'danger',
+        'Triagem inicial inconclusiva',
+        'Sem indicação de dois ou mais vínculos simultâneos, não é possível apontar, nesta etapa, a hipótese principal de restituição por excesso de contribuição. Ainda assim, a situação pode ser revista com os documentos previdenciários.',
+        data
+      );
+    });
+
+    clearBtn.addEventListener('click', function () {
+      form.reset();
+      resultBox.className = 'result-box';
+      resultBox.innerHTML = '';
+      window.scrollTo({ top: document.getElementById('analise').offsetTop - 80, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
